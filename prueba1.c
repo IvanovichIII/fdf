@@ -6,7 +6,7 @@
 /*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 23:44:21 by igomez-s          #+#    #+#             */
-/*   Updated: 2025/03/04 00:31:47 by ivan             ###   ########.fr       */
+/*   Updated: 2025/03/04 00:52:14 by ivan             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ float fmodule(float i)
 }*/
 void bresenham(t_fdf *fdf, int *puntos, int color)
 {
-	ft_printf("%d %d %d %d\n", puntos[0], puntos[1], puntos[2], puntos[3]);
+	//ft_printf("%d %d %d %d\n", puntos[0], puntos[1], puntos[2], puntos[3]);
 	int dx = abs(puntos[2] - puntos[0]);
 	int dy = abs(puntos[3] - puntos[1]);
 	int sx = (puntos[0] < puntos[2]) ? 1 : -1;
@@ -326,7 +326,7 @@ int	main(int argc, char **argv)
 	fdf->col = get_col(fdf);
 	ft_printf("fila: %d, columna: %d\n", fdf->fil, fdf->col);
 	get_map(fdf);
-	fdf->zoom = 10;
+	fdf->zoom = 34;
 	fdf->width = fdf->col * fdf->zoom;
 	fdf->height = fdf->fil * fdf->zoom;
 	//print_map(fdf);

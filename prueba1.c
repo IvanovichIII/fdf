@@ -6,7 +6,7 @@
 /*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 23:44:21 by igomez-s          #+#    #+#             */
-/*   Updated: 2025/03/03 17:16:08 by ivan             ###   ########.fr       */
+/*   Updated: 2025/03/04 00:31:47 by ivan             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,22 @@ int get_rgba(int r, int g, int b, int a)
 	return (r << 24 | g << 16 | b << 8 | a);
 }
 
+void print_map(t_fdf *fdf)
+{
+	int i = 0;
+	while (i < fdf->fil)
+	{
+		int j = 0;
+		while (j < fdf->col)
+		{
+			ft_printf("%d ", fdf->map[i][j]);
+			j++;
+		}
+		ft_printf("\n");
+		i++;
+	}
+}
+
 void put_pix(t_fdf *fdf, int x, int y, int color)
 {
 	mlx_put_pixel(fdf->g_img, x, y, color);
@@ -33,11 +49,63 @@ void put_pix(t_fdf *fdf, int x, int y, int color)
 
 void	isometric(float *x, float *y, int z)
 {
+	printf("Original: (%p, %p) ->", x, y);
 	*x = (*x - *y) * cos(0.8);
 	*y = (*x + *y) * sin(0.8) - z;
+	printf("Isometric: (%f, %f)\n", *x, *y);
 }
 
-void	bresenham(t_fdf *fdf, int *puntos, int color)
+float maxF(float a, float b)
+{
+	if (a > b)
+	{
+		return a;
+	}
+	else
+	{
+		return b;
+	}
+}
+
+float fmodule(float i)
+{
+	if (i < 0)
+	{
+		return -i;
+	}
+	else
+	{
+		return i;
+	}
+}
+
+/*void	bresenham(t_fdf *fdf, float puntos[4], int color)
+{
+	float	xNext;
+	float	yNext;
+	int		max;
+	int		z;
+	int		z1;
+
+	//z = fdf->map[(int)puntos[0]][(int)puntos[1]];
+	//z1 = fdf->map[(int)puntos[2]][(int)puntos[3]];
+	puntos[0] *= fdf->zoom;
+	puntos[1] *= fdf->zoom;
+	puntos[2] *= fdf->zoom;
+	puntos[3] *= fdf->zoom;
+	xNext = puntos[2] - puntos[0];
+	yNext = puntos[3] - puntos[1];
+	max = maxF(fmodule(xNext), fmodule(yNext));
+	xNext /= max;
+	yNext /= max;
+	while ((int)(puntos[0] - puntos[2]) || (int)(puntos[1] - puntos[3]))
+	{
+		put_pix(fdf, puntos[0], puntos[1], color);
+		puntos[0] += xNext;
+		puntos[1] += yNext;
+	}
+}*/
+void bresenham(t_fdf *fdf, int *puntos, int color)
 {
 	ft_printf("%d %d %d %d\n", puntos[0], puntos[1], puntos[2], puntos[3]);
 	int dx = abs(puntos[2] - puntos[0]);
@@ -65,6 +133,46 @@ void	bresenham(t_fdf *fdf, int *puntos, int color)
 	}
 }
 
+/*void dale_duro(void *param)
+{
+	int x;
+	int y;
+	t_fdf *fdf;
+	float puntos[4];
+
+	fdf = param;
+	y = 0;
+	//print_map(fdf);
+	while (y < fdf->height)
+	{
+		x = 0;
+		while (x < fdf->width)
+		{
+			puntos[0] = y;
+			puntos[1] = x;
+			puntos[2] = y + 1;
+			puntos[3] = x;
+			if (x < fdf->fil)
+			{
+				//ft_printf("%d", fdf->map[x][y]);
+				bresenham(fdf, puntos, get_rgba(fdf->map[x][y] * 10 + 10, 0, fdf->map[x][y] * 3, 255));
+			}
+			//ft_printf("\n");
+			puntos[0] = y;
+			puntos[1] = x;
+			puntos[2] = y;
+			puntos[3] = x + 1;
+			if (y < fdf->col - 1)
+			{
+				//ft_printf("%d", fdf->map[x][y]);
+				bresenham(fdf, puntos, get_rgba(255, 0, 0, 255));
+			}
+			x++;
+		}
+		y++;
+	}
+}*/
+
 void dale_duro(void *param)
 {
 	t_fdf *fdf;
@@ -74,7 +182,7 @@ void dale_duro(void *param)
 
 	fdf = param;
 	i = 0;
-	while (i < fdf->fil)
+	while (i < fdf->fil - 1)
 	{
 		j = 0;
 		while (j < fdf->col)
@@ -83,8 +191,15 @@ void dale_duro(void *param)
 			puntos[1] = i * fdf->zoom;
 			puntos[2] = j * fdf->zoom + fdf->zoom;
 			puntos[3] = i * fdf->zoom;
-			//isometric(puntos[0], puntos[1], fdf->map[i][j]);
-			//isometric(puntos[2], puntos[3], fdf->map[i][j]);
+			puntos[0] = (puntos[0] - puntos[1]) * cos(0.8);
+			puntos[1] = (puntos[0] + puntos[1]) * sin(0.8) - fdf->map[i][j];
+			puntos[2] = (puntos[2] - puntos[3]) * cos(0.8);
+			puntos[3] = (puntos[2] + puntos[3]) * sin(0.8) - fdf->map[i][j + 1];
+			puntos[0] += fdf->zoom;
+			puntos[1] += fdf->zoom;
+			puntos[2] += fdf->zoom;
+			puntos[3] += fdf->zoom;
+			//isometric(&puntos[2], &puntos[3], fdf->map[i][j]);
 			if (fdf->map[i][j] != 0)
 				bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * 10 + 10, 0, fdf->map[i][j] * 3, 255));
 			else
@@ -93,6 +208,14 @@ void dale_duro(void *param)
 			puntos[1] = i * fdf->zoom;
 			puntos[2] = j * fdf->zoom;
 			puntos[3] = i * fdf->zoom + fdf->zoom;
+			puntos[0] = (puntos[0] - puntos[1]) * cos(0.8);
+			puntos[1] = (puntos[0] + puntos[1]) * sin(0.8) - fdf->map[i][j];
+			puntos[2] = (puntos[2] - puntos[3]) * cos(0.8);
+			puntos[3] = (puntos[2] + puntos[3]) * sin(0.8) - fdf->map[i + 1][j];
+			puntos[0] += fdf->zoom;
+			puntos[1] += fdf->zoom;
+			puntos[2] += fdf->zoom;
+			puntos[3] += fdf->zoom;
 			if (fdf->map[i][j] != 0)
 				bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * 10, 0, fdf->map[i][j] * 3, 255));
 			else
@@ -139,22 +262,6 @@ void	get_map(t_fdf *fdf)
 	free(line);
 	close(fd);
 	fdf->map[i] = NULL;
-}
-
-void print_map(t_fdf *fdf)
-{
-	int i = 0;
-	while (i < fdf->fil)
-	{
-		int j = 0;
-		while (j < fdf->col)
-		{
-			ft_printf("%d ", fdf->map[i][j]);
-			j++;
-		}
-		ft_printf("\n");
-		i++;
-	}
 }
 
 int	get_fil(t_fdf *fdf)
@@ -219,9 +326,9 @@ int	main(int argc, char **argv)
 	fdf->col = get_col(fdf);
 	ft_printf("fila: %d, columna: %d\n", fdf->fil, fdf->col);
 	get_map(fdf);
-	fdf->zoom = 2;
-	fdf->width = fdf->col * fdf->zoom + 1;
-	fdf->height = fdf->fil * fdf->zoom + 1;
+	fdf->zoom = 10;
+	fdf->width = fdf->col * fdf->zoom;
+	fdf->height = fdf->fil * fdf->zoom;
 	//print_map(fdf);
 	fdf->mlx = mlx_init(fdf->width, fdf->height, "Fdf by igomez-s", true);
 	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width, fdf->height);

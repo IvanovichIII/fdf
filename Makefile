@@ -67,6 +67,7 @@ $(PRINTF):
 
 $(MLX42):
 	@echo "$(BUILD) $(YELLOW)Building MLX42...$(RESET)"
+	@cd $(MLX42_DIR)/.. && cmake -B build && cmake --build build -j4 && cd ..
 	@$(MAKE) -C $(MLX42_DIR) all > $(NO_PRINT)
 
 # Limpiar archivos intermedios

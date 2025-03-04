@@ -185,7 +185,7 @@ void dale_duro(void *param)
 	while (i < fdf->fil - 1)
 	{
 		j = 0;
-		while (j < fdf->col)
+		while (j < fdf->col - 1)
 		{
 			puntos[0] = j * fdf->zoom;
 			puntos[1] = i * fdf->zoom;
@@ -195,13 +195,13 @@ void dale_duro(void *param)
 			puntos[1] = (puntos[0] + puntos[1]) * sin(0.8) - fdf->map[i][j];
 			puntos[2] = (puntos[2] - puntos[3]) * cos(0.8);
 			puntos[3] = (puntos[2] + puntos[3]) * sin(0.8) - fdf->map[i][j + 1];
-			puntos[0] += fdf->zoom;
-			puntos[1] += fdf->zoom;
-			puntos[2] += fdf->zoom;
-			puntos[3] += fdf->zoom;
+			puntos[0] += fdf->width * 0.8;
+			puntos[1] += 10;
+			puntos[2] += fdf->width * 0.8;
+			puntos[3] += 10;
 			//isometric(&puntos[2], &puntos[3], fdf->map[i][j]);
 			if (fdf->map[i][j] != 0)
-				bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * 10 + 10, 0, fdf->map[i][j] * 3, 255));
+				bresenham(fdf, puntos, get_rgba(0, fdf->map[i][j] * 10 + 10, fdf->map[i][j] * 3, 255));
 			else
 				bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
 			puntos[0] = j * fdf->zoom;
@@ -212,12 +212,12 @@ void dale_duro(void *param)
 			puntos[1] = (puntos[0] + puntos[1]) * sin(0.8) - fdf->map[i][j];
 			puntos[2] = (puntos[2] - puntos[3]) * cos(0.8);
 			puntos[3] = (puntos[2] + puntos[3]) * sin(0.8) - fdf->map[i + 1][j];
-			puntos[0] += fdf->zoom;
-			puntos[1] += fdf->zoom;
-			puntos[2] += fdf->zoom;
-			puntos[3] += fdf->zoom;
+			puntos[0] += fdf->width * 0.8;
+			puntos[1] += 10;
+			puntos[2] += fdf->width * 0.8;
+			puntos[3] += 10;
 			if (fdf->map[i][j] != 0)
-				bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * 10, 0, fdf->map[i][j] * 3, 255));
+				bresenham(fdf, puntos, get_rgba(0, fdf->map[i][j] * 10, fdf->map[i][j] * 3, 255));
 			else
 				bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
 			j++;
@@ -326,12 +326,12 @@ int	main(int argc, char **argv)
 	fdf->col = get_col(fdf);
 	ft_printf("fila: %d, columna: %d\n", fdf->fil, fdf->col);
 	get_map(fdf);
-	fdf->zoom = 34;
+	fdf->zoom = 2;
 	fdf->width = fdf->col * fdf->zoom;
 	fdf->height = fdf->fil * fdf->zoom;
 	//print_map(fdf);
-	fdf->mlx = mlx_init(fdf->width, fdf->height, "Fdf by igomez-s", true);
-	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width, fdf->height);
+	fdf->mlx = mlx_init(fdf->width * 2, fdf->height, "Fdf by igomez-s", true);
+	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width * 2, fdf->height);
 	mlx_key_hook(fdf->mlx, &check_keypress, (void *)fdf->mlx);
 	mlx_image_to_window(fdf->mlx, fdf->g_img, 0, 0);
 	//put_pix(fdf, 20, 20);

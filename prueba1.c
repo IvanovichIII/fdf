@@ -6,7 +6,7 @@
 /*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 23:44:21 by igomez-s          #+#    #+#             */
-/*   Updated: 2025/03/04 00:52:14 by ivan             ###   ########.fr       */
+/*   Updated: 2025/03/04 22:49:49 by ivan             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,6 +173,46 @@ void bresenham(t_fdf *fdf, int *puntos, int color)
 	}
 }*/
 
+void dale_duro2(t_fdf *fdf, int puntos[4], int i, int j)
+{
+	puntos[0] = j * fdf->zoom;
+	puntos[1] = i * fdf->zoom;
+	puntos[2] = j * fdf->zoom + fdf->zoom;
+	puntos[3] = i * fdf->zoom;
+	puntos[0] = (puntos[0] - puntos[1]) * cos(ANG);
+	puntos[1] = (puntos[0] + puntos[1]) * sin(ANG) - fdf->map[i][j];
+	puntos[2] = (puntos[2] - puntos[3]) * cos(ANG);
+	puntos[3] = (puntos[2] + puntos[3]) * sin(ANG) - fdf->map[i][j + 1];
+	puntos[0] += fdf->width / 2;
+	puntos[1] += fdf->width / 5;
+	puntos[2] += fdf->width / 2;
+	puntos[3] += fdf->width / 5;
+	if (fdf->map[i][j] != 0)
+		bresenham(fdf, puntos, get_rgba(0, fdf->map[i][j] * 10 + 10, fdf->map[i][j] * 3, 255));
+	else
+		bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
+}
+
+void dale_duro3(t_fdf *fdf, int puntos[4], int i, int j)
+{
+	puntos[0] = j * fdf->zoom;
+	puntos[1] = i * fdf->zoom;
+	puntos[2] = j * fdf->zoom;
+	puntos[3] = i * fdf->zoom + fdf->zoom;
+	puntos[0] = (puntos[0] - puntos[1]) * cos(ANG);
+	puntos[1] = (puntos[0] + puntos[1]) * sin(ANG) - fdf->map[i][j];
+	puntos[2] = (puntos[2] - puntos[3]) * cos(ANG);
+	puntos[3] = (puntos[2] + puntos[3]) * sin(ANG) - fdf->map[i + 1][j];
+	puntos[0] += fdf->width / 2;
+	puntos[1] += fdf->width / 5;
+	puntos[2] += fdf->width / 2;
+	puntos[3] += fdf->width / 5;
+	if (fdf->map[i][j] != 0)
+		bresenham(fdf, puntos, get_rgba(0, fdf->map[i][j] * 10, fdf->map[i][j] * 3, 255));
+	else
+		bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
+}
+
 void dale_duro(void *param)
 {
 	t_fdf *fdf;
@@ -187,39 +227,8 @@ void dale_duro(void *param)
 		j = 0;
 		while (j < fdf->col - 1)
 		{
-			puntos[0] = j * fdf->zoom;
-			puntos[1] = i * fdf->zoom;
-			puntos[2] = j * fdf->zoom + fdf->zoom;
-			puntos[3] = i * fdf->zoom;
-			puntos[0] = (puntos[0] - puntos[1]) * cos(0.8);
-			puntos[1] = (puntos[0] + puntos[1]) * sin(0.8) - fdf->map[i][j];
-			puntos[2] = (puntos[2] - puntos[3]) * cos(0.8);
-			puntos[3] = (puntos[2] + puntos[3]) * sin(0.8) - fdf->map[i][j + 1];
-			puntos[0] += fdf->width * 0.8;
-			puntos[1] += 10;
-			puntos[2] += fdf->width * 0.8;
-			puntos[3] += 10;
-			//isometric(&puntos[2], &puntos[3], fdf->map[i][j]);
-			if (fdf->map[i][j] != 0)
-				bresenham(fdf, puntos, get_rgba(0, fdf->map[i][j] * 10 + 10, fdf->map[i][j] * 3, 255));
-			else
-				bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
-			puntos[0] = j * fdf->zoom;
-			puntos[1] = i * fdf->zoom;
-			puntos[2] = j * fdf->zoom;
-			puntos[3] = i * fdf->zoom + fdf->zoom;
-			puntos[0] = (puntos[0] - puntos[1]) * cos(0.8);
-			puntos[1] = (puntos[0] + puntos[1]) * sin(0.8) - fdf->map[i][j];
-			puntos[2] = (puntos[2] - puntos[3]) * cos(0.8);
-			puntos[3] = (puntos[2] + puntos[3]) * sin(0.8) - fdf->map[i + 1][j];
-			puntos[0] += fdf->width * 0.8;
-			puntos[1] += 10;
-			puntos[2] += fdf->width * 0.8;
-			puntos[3] += 10;
-			if (fdf->map[i][j] != 0)
-				bresenham(fdf, puntos, get_rgba(0, fdf->map[i][j] * 10, fdf->map[i][j] * 3, 255));
-			else
-				bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
+			dale_duro2(fdf, puntos, i, j);
+			dale_duro3(fdf, puntos, i, j);
 			j++;
 		}
 		i++;
@@ -315,6 +324,20 @@ int	get_col(t_fdf *fdf)
 	return (i);
 }
 
+void my_scrollhook(double xdelta, double ydelta, void *param)
+{
+	t_fdf	*fdf;
+
+	fdf = param;
+	// Simple up or down detection.
+	if (ydelta > 0 && fdf->zoom > 1)
+	{
+		fdf->zoom++;
+	}
+	else if (ydelta < 0 && fdf->zoom < 30)
+		fdf->zoom--;
+}
+
 int	main(int argc, char **argv)
 {
 	t_fdf	*fdf;
@@ -326,14 +349,17 @@ int	main(int argc, char **argv)
 	fdf->col = get_col(fdf);
 	ft_printf("fila: %d, columna: %d\n", fdf->fil, fdf->col);
 	get_map(fdf);
-	fdf->zoom = 2;
-	fdf->width = fdf->col * fdf->zoom;
-	fdf->height = fdf->fil * fdf->zoom;
+	fdf->zoom = 20;
+	/*fdf->width = fdf->col * fdf->zoom;
+	fdf->height = fdf->fil * fdf->zoom;*/
+	fdf->width = (fdf->col * fdf->zoom) * cos(ANG) * 2;
+	fdf->height = ((fdf->fil * fdf->zoom) * sin(ANG) + (fdf->col * fdf->zoom)) * cos(ANG);
 	//print_map(fdf);
-	fdf->mlx = mlx_init(fdf->width * 2, fdf->height, "Fdf by igomez-s", true);
-	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width * 2, fdf->height);
+	fdf->mlx = mlx_init(fdf->width, fdf->height, "Fdf by igomez-s", true);
+	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width, fdf->height);
 	mlx_key_hook(fdf->mlx, &check_keypress, (void *)fdf->mlx);
 	mlx_image_to_window(fdf->mlx, fdf->g_img, 0, 0);
+	mlx_scroll_hook(fdf->mlx, &my_scrollhook, fdf);
 	//put_pix(fdf, 20, 20);
 	mlx_loop_hook(fdf->mlx, &dale_duro, (void *)fdf);
 	mlx_loop(fdf->mlx);

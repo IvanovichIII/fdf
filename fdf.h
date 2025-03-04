@@ -6,7 +6,7 @@
 /*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 00:18:14 by igomez-s          #+#    #+#             */
-/*   Updated: 2025/03/03 16:52:11 by ivan             ###   ########.fr       */
+/*   Updated: 2025/03/04 20:05:42 by ivan             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 
 #define WIDTH 512
 #define HEIGHT 512
+#define ANG 0.8
 #ifndef NO_ERROR
 #define NO_ERROR 0
 #endif

@@ -3,40 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   prueba1.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: igomez-s <igomez-s@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 23:44:21 by igomez-s          #+#    #+#             */
-/*   Updated: 2025/03/04 22:49:49 by ivan             ###   ########.fr       */
+/*   Updated: 2025/03/05 19:24:13 by igomez-s         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
-
-void	clear_content(t_fdf *fdf)
-{
-	mlx_delete_image(fdf->mlx, fdf->g_img);
-	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width + 1, fdf->height + 1);
-	mlx_image_to_window(fdf->mlx, fdf->g_img, 0, 0);
-}
-
-void	check_keypress(mlx_key_data_t key, void *param)
-{
-	t_fdf	*fdf;
-
-	fdf = param;
-	if (key.key == MLX_KEY_ESCAPE && key.action == MLX_PRESS)
-		mlx_close_window(fdf->mlx);
-	if (key.key == MLX_KEY_UP && key.action == MLX_PRESS)
-	{
-		fdf->ang -= 0.1;
-		clear_content(fdf);
-	}
-	if (key.key == MLX_KEY_DOWN && key.action == MLX_PRESS)
-	{
-		fdf->ang += 0.1;
-		clear_content(fdf);
-	}
-}
 
 int get_rgba(int r, int g, int b, int a)
 {
@@ -170,12 +144,14 @@ void dale_duro2(t_fdf *fdf, int puntos[4], int i, int j)
 	puntos[1] = (puntos[0] + puntos[1]) * sin(fdf->ang) - fdf->map[i][j];
 	puntos[2] = (puntos[2] - puntos[3]) * cos(fdf->ang);
 	puntos[3] = (puntos[2] + puntos[3]) * sin(fdf->ang) - fdf->map[i][j + 1];
-	puntos[0] += fdf->width / 2;
-	puntos[1] += fdf->width / 5;
-	puntos[2] += fdf->width / 2;
-	puntos[3] += fdf->width / 5;
-	if (fdf->map[i][j] != 0)
-		bresenham(fdf, puntos, get_rgba(0, fdf->map[i][j] * 10 + 10, fdf->map[i][j] * 3, 255));
+	puntos[0] += fdf->width / 2 + fdf->horMove;
+	puntos[1] += fdf->width / 5 + fdf->verMove;
+	puntos[2] += fdf->width / 2 + fdf->horMove;
+	puntos[3] += fdf->width / 5 + fdf->verMove;
+	if (fdf->map[i][j] > 0)
+		bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorP, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorT, 255));
+	else if (fdf->map[i][j] < 0)
+		bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorT, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorP, 255));
 	else
 		bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
 }
@@ -190,12 +166,14 @@ void dale_duro3(t_fdf *fdf, int puntos[4], int i, int j)
 	puntos[1] = (puntos[0] + puntos[1]) * sin(fdf->ang) - fdf->map[i][j];
 	puntos[2] = (puntos[2] - puntos[3]) * cos(fdf->ang);
 	puntos[3] = (puntos[2] + puntos[3]) * sin(fdf->ang) - fdf->map[i + 1][j];
-	puntos[0] += fdf->width / 2;
-	puntos[1] += fdf->width / 5;
-	puntos[2] += fdf->width / 2;
-	puntos[3] += fdf->width / 5;
-	if (fdf->map[i][j] != 0)
-		bresenham(fdf, puntos, get_rgba(0, fdf->map[i][j] * 10, fdf->map[i][j] * 3, 255));
+	puntos[0] += fdf->width / 2 + fdf->horMove;
+	puntos[1] += fdf->width / 5 + fdf->verMove;
+	puntos[2] += fdf->width / 2 + fdf->horMove;
+	puntos[3] += fdf->width / 5 + fdf->verMove;
+	if (fdf->map[i][j] > 0)
+		bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorP, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorT, 255));
+	else if (fdf->map[i][j] < 0)
+		bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorT, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorP, 255));
 	else
 		bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
 }
@@ -206,9 +184,13 @@ void dale_duro(void *param)
 	int puntos[4];
 	int i;
 	int j;
+	int	x;
+	int	y;
 
 	fdf = param;
 	i = 0;
+	mlx_get_mouse_pos(fdf->mlx, &x, &y);
+	ft_printf("x: %d, y: %d\n", x, y);
 	while (i < fdf->fil - 1)
 	{
 		j = 0;
@@ -311,6 +293,75 @@ int	get_col(t_fdf *fdf)
 	return (i);
 }
 
+void clear_content(t_fdf *fdf)
+{
+	fdf->width = (fdf->col * fdf->zoom) * cos(fdf->ang) * 2;
+	fdf->height = ((fdf->fil * fdf->zoom) * sin(fdf->ang) + (fdf->col * fdf->zoom)) * cos(fdf->ang);
+	mlx_delete_image(fdf->mlx, fdf->g_img);
+	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width, fdf->height);
+	mlx_image_to_window(fdf->mlx, fdf->g_img, 0, 0);
+}
+
+void check_keypress(mlx_key_data_t key, void *param)
+{
+	t_fdf *fdf;
+
+	fdf = param;
+	if (key.key == MLX_KEY_ESCAPE && key.action == MLX_PRESS)
+		mlx_close_window(fdf->mlx);
+	if (key.key == MLX_KEY_UP && key.action == MLX_PRESS)
+	{
+		//fdf->ang -= 0.1;
+		fdf->verMove -= 5 * fdf->zoom;
+		clear_content(fdf);
+	}
+	if (key.key == MLX_KEY_DOWN && key.action == MLX_PRESS)
+	{
+		//fdf->ang += 0.1;
+		fdf->verMove += 5 * fdf->zoom;
+		clear_content(fdf);
+	}
+	if (key.key == MLX_KEY_RIGHT && key.action == MLX_PRESS)
+	{
+		fdf->horMove += 5 * fdf->zoom;
+		clear_content(fdf);
+	}
+	if (key.key == MLX_KEY_LEFT && key.action == MLX_PRESS)
+	{
+		fdf->horMove -= 5 * fdf->zoom;
+		clear_content(fdf);
+	}
+	if (key.key == MLX_KEY_UP && key.action == MLX_REPEAT)
+	{
+		// fdf->ang -= 0.1;
+		fdf->verMove -= 5 * fdf->zoom;
+		clear_content(fdf);
+	}
+	if (key.key == MLX_KEY_DOWN && key.action == MLX_REPEAT)
+	{
+		// fdf->ang += 0.1;
+		fdf->verMove += 5 * fdf->zoom;
+		clear_content(fdf);
+	}
+	if (key.key == MLX_KEY_RIGHT && key.action == MLX_REPEAT)
+	{
+		fdf->horMove += 5 * fdf->zoom;
+		clear_content(fdf);
+	}
+	if (key.key == MLX_KEY_LEFT && key.action == MLX_REPEAT)
+	{
+		fdf->horMove -= 5 * fdf->zoom;
+		clear_content(fdf);
+	}
+	if (key.key == MLX_KEY_C && key.action == MLX_REPEAT)
+	{
+		fdf->colorP += 7;
+		fdf->colorS += 3;
+		fdf->colorT += 1;
+		clear_content(fdf);
+	}
+}
+
 void my_scrollhook(double xdelta, double ydelta, void *param)
 {
 	t_fdf	*fdf;
@@ -337,6 +388,15 @@ void my_scrollhook(double xdelta, double ydelta, void *param)
 	}
 }
 
+void ratoncito(int x, int y, void *param)
+{
+	t_fdf *fdf;
+
+	fdf = param;
+	mlx_get_mouse_pos(fdf->mlx, &x, &y);
+	ft_printf("x: %d, y: %d\n", x, y);
+}
+
 int	main(int argc, char **argv)
 {
 	t_fdf	*fdf;
@@ -348,8 +408,11 @@ int	main(int argc, char **argv)
 	fdf->col = get_col(fdf);
 	ft_printf("fila: %d, columna: %d\n", fdf->fil, fdf->col);
 	get_map(fdf);
-	fdf->zoom = 2;
+	fdf->zoom = 5;
 	fdf->ang = ANG;
+	fdf->colorP = 10;
+	fdf->colorS = 5;
+	fdf->colorT = 0;
 	fdf->width = (fdf->col * fdf->zoom) * cos(fdf->ang) * 2;
 	fdf->height = ((fdf->fil * fdf->zoom) * sin(fdf->ang) + (fdf->col * fdf->zoom)) * cos(fdf->ang);
 	fdf->mlx = mlx_init(fdf->width, fdf->height, "Fdf by igomez-s", true);
@@ -358,7 +421,9 @@ int	main(int argc, char **argv)
 	mlx_image_to_window(fdf->mlx, fdf->g_img, 0, 0);
 	mlx_scroll_hook(fdf->mlx, &my_scrollhook, fdf);
 	mlx_loop_hook(fdf->mlx, &dale_duro, (void *)fdf);
+	//mlx_cursor_hook(fdf->mlx, &ratoncito, fdf);
 	mlx_loop(fdf->mlx);
 	mlx_terminate(fdf->mlx);
+	free(fdf);
 	return (0);
 }

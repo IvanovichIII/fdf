@@ -12,13 +12,30 @@
 
 #include "fdf.h"
 
+void	clear_content(t_fdf *fdf)
+{
+	mlx_delete_image(fdf->mlx, fdf->g_img);
+	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width + 1, fdf->height + 1);
+	mlx_image_to_window(fdf->mlx, fdf->g_img, 0, 0);
+}
+
 void	check_keypress(mlx_key_data_t key, void *param)
 {
-	mlx_t	*mlx;
+	t_fdf	*fdf;
 
-	mlx = param;
+	fdf = param;
 	if (key.key == MLX_KEY_ESCAPE && key.action == MLX_PRESS)
-		mlx_close_window(mlx);
+		mlx_close_window(fdf->mlx);
+	if (key.key == MLX_KEY_UP && key.action == MLX_PRESS)
+	{
+		fdf->ang -= 0.1;
+		clear_content(fdf);
+	}
+	if (key.key == MLX_KEY_DOWN && key.action == MLX_PRESS)
+	{
+		fdf->ang += 0.1;
+		clear_content(fdf);
+	}
 }
 
 int get_rgba(int r, int g, int b, int a)
@@ -47,14 +64,6 @@ void put_pix(t_fdf *fdf, int x, int y, int color)
 	mlx_put_pixel(fdf->g_img, x, y, color);
 }
 
-void	isometric(float *x, float *y, int z)
-{
-	printf("Original: (%p, %p) ->", x, y);
-	*x = (*x - *y) * cos(0.8);
-	*y = (*x + *y) * sin(0.8) - z;
-	printf("Isometric: (%f, %f)\n", *x, *y);
-}
-
 float maxF(float a, float b)
 {
 	if (a > b)
@@ -79,41 +88,19 @@ float fmodule(float i)
 	}
 }
 
-/*void	bresenham(t_fdf *fdf, float puntos[4], int color)
-{
-	float	xNext;
-	float	yNext;
-	int		max;
-	int		z;
-	int		z1;
-
-	//z = fdf->map[(int)puntos[0]][(int)puntos[1]];
-	//z1 = fdf->map[(int)puntos[2]][(int)puntos[3]];
-	puntos[0] *= fdf->zoom;
-	puntos[1] *= fdf->zoom;
-	puntos[2] *= fdf->zoom;
-	puntos[3] *= fdf->zoom;
-	xNext = puntos[2] - puntos[0];
-	yNext = puntos[3] - puntos[1];
-	max = maxF(fmodule(xNext), fmodule(yNext));
-	xNext /= max;
-	yNext /= max;
-	while ((int)(puntos[0] - puntos[2]) || (int)(puntos[1] - puntos[3]))
-	{
-		put_pix(fdf, puntos[0], puntos[1], color);
-		puntos[0] += xNext;
-		puntos[1] += yNext;
-	}
-}*/
 void bresenham(t_fdf *fdf, int *puntos, int color)
 {
-	//ft_printf("%d %d %d %d\n", puntos[0], puntos[1], puntos[2], puntos[3]);
-	int dx = abs(puntos[2] - puntos[0]);
-	int dy = abs(puntos[3] - puntos[1]);
-	int sx = (puntos[0] < puntos[2]) ? 1 : -1;
-	int sy = (puntos[1] < puntos[3]) ? 1 : -1;
-	int err = dx - dy;
+	int dx;
+	int dy;
+	int sx;
+	int sy;
+	int err; 
 
+	dx = abs(puntos[2] - puntos[0]);
+	dy = abs(puntos[3] - puntos[1]);
+	sx = (puntos[0] < puntos[2]) ? 1 : -1;
+	sy = (puntos[1] < puntos[3]) ? 1 : -1;
+	err = dx - dy;
 	while (1)
 	{
 		put_pix(fdf, puntos[0], puntos[1], color);
@@ -179,10 +166,10 @@ void dale_duro2(t_fdf *fdf, int puntos[4], int i, int j)
 	puntos[1] = i * fdf->zoom;
 	puntos[2] = j * fdf->zoom + fdf->zoom;
 	puntos[3] = i * fdf->zoom;
-	puntos[0] = (puntos[0] - puntos[1]) * cos(ANG);
-	puntos[1] = (puntos[0] + puntos[1]) * sin(ANG) - fdf->map[i][j];
-	puntos[2] = (puntos[2] - puntos[3]) * cos(ANG);
-	puntos[3] = (puntos[2] + puntos[3]) * sin(ANG) - fdf->map[i][j + 1];
+	puntos[0] = (puntos[0] - puntos[1]) * cos(fdf->ang);
+	puntos[1] = (puntos[0] + puntos[1]) * sin(fdf->ang) - fdf->map[i][j];
+	puntos[2] = (puntos[2] - puntos[3]) * cos(fdf->ang);
+	puntos[3] = (puntos[2] + puntos[3]) * sin(fdf->ang) - fdf->map[i][j + 1];
 	puntos[0] += fdf->width / 2;
 	puntos[1] += fdf->width / 5;
 	puntos[2] += fdf->width / 2;
@@ -199,10 +186,10 @@ void dale_duro3(t_fdf *fdf, int puntos[4], int i, int j)
 	puntos[1] = i * fdf->zoom;
 	puntos[2] = j * fdf->zoom;
 	puntos[3] = i * fdf->zoom + fdf->zoom;
-	puntos[0] = (puntos[0] - puntos[1]) * cos(ANG);
-	puntos[1] = (puntos[0] + puntos[1]) * sin(ANG) - fdf->map[i][j];
-	puntos[2] = (puntos[2] - puntos[3]) * cos(ANG);
-	puntos[3] = (puntos[2] + puntos[3]) * sin(ANG) - fdf->map[i + 1][j];
+	puntos[0] = (puntos[0] - puntos[1]) * cos(fdf->ang);
+	puntos[1] = (puntos[0] + puntos[1]) * sin(fdf->ang) - fdf->map[i][j];
+	puntos[2] = (puntos[2] - puntos[3]) * cos(fdf->ang);
+	puntos[3] = (puntos[2] + puntos[3]) * sin(fdf->ang) - fdf->map[i + 1][j];
 	puntos[0] += fdf->width / 2;
 	puntos[1] += fdf->width / 5;
 	puntos[2] += fdf->width / 2;
@@ -330,12 +317,24 @@ void my_scrollhook(double xdelta, double ydelta, void *param)
 
 	fdf = param;
 	// Simple up or down detection.
-	if (ydelta > 0 && fdf->zoom > 1)
+	if (ydelta > 0 && fdf->zoom < 30)
 	{
 		fdf->zoom++;
+		ft_printf("%d", fdf->zoom);
+		clear_content(fdf);
+
+		//mlx_delete_image(fdf->mlx, fdf->g_img);
+		//mlx_new_image(fdf->mlx, fdf->width, fdf->height);
 	}
-	else if (ydelta < 0 && fdf->zoom < 30)
+	else if (ydelta < 0 && fdf->zoom > 1)
+	{
 		fdf->zoom--;
+		ft_printf("%d", fdf->zoom);
+		clear_content(fdf);
+
+		//mlx_delete_image(fdf->mlx, fdf->g_img);
+		//mlx_new_image(fdf->mlx, fdf->width, fdf->height);
+	}
 }
 
 int	main(int argc, char **argv)
@@ -349,18 +348,15 @@ int	main(int argc, char **argv)
 	fdf->col = get_col(fdf);
 	ft_printf("fila: %d, columna: %d\n", fdf->fil, fdf->col);
 	get_map(fdf);
-	fdf->zoom = 20;
-	/*fdf->width = fdf->col * fdf->zoom;
-	fdf->height = fdf->fil * fdf->zoom;*/
-	fdf->width = (fdf->col * fdf->zoom) * cos(ANG) * 2;
-	fdf->height = ((fdf->fil * fdf->zoom) * sin(ANG) + (fdf->col * fdf->zoom)) * cos(ANG);
-	//print_map(fdf);
+	fdf->zoom = 2;
+	fdf->ang = ANG;
+	fdf->width = (fdf->col * fdf->zoom) * cos(fdf->ang) * 2;
+	fdf->height = ((fdf->fil * fdf->zoom) * sin(fdf->ang) + (fdf->col * fdf->zoom)) * cos(fdf->ang);
 	fdf->mlx = mlx_init(fdf->width, fdf->height, "Fdf by igomez-s", true);
 	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width, fdf->height);
-	mlx_key_hook(fdf->mlx, &check_keypress, (void *)fdf->mlx);
+	mlx_key_hook(fdf->mlx, &check_keypress, (void *)fdf);
 	mlx_image_to_window(fdf->mlx, fdf->g_img, 0, 0);
 	mlx_scroll_hook(fdf->mlx, &my_scrollhook, fdf);
-	//put_pix(fdf, 20, 20);
 	mlx_loop_hook(fdf->mlx, &dale_duro, (void *)fdf);
 	mlx_loop(fdf->mlx);
 	mlx_terminate(fdf->mlx);

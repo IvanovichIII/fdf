@@ -37,6 +37,7 @@ typedef struct s_fdf
 	int			fil;
 	int			col;
 	int			zoom;
+	float		ang;
 	mlx_image_t	*g_img;
 	int			width;
 	int			height;

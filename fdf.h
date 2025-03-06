@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   fdf.h                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: igomez-s <igomez-s@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 00:18:14 by igomez-s          #+#    #+#             */
-/*   Updated: 2025/03/05 19:19:09 by igomez-s         ###   ########.fr       */
+/*   Updated: 2025/03/06 18:11:58 by ivan             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,9 @@ typedef struct s_fdf
 	int			zoom;
 	int			verMove;
 	int			horMove;
+	int			xMouse;
+	int			yMouse;
+	int			modo;
 	float		ang;
 	int			width;
 	int			height;

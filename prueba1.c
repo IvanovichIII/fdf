@@ -6,7 +6,7 @@
 /*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 23:44:21 by igomez-s          #+#    #+#             */
-/*   Updated: 2025/03/06 18:41:53 by ivan             ###   ########.fr       */
+/*   Updated: 2025/03/12 11:54:00 by ivan             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,13 +173,14 @@ void dale_duro2(t_fdf *fdf, int puntos[4], int i, int j)
 		puntos[2] += fdf->width / 2 + fdf->horMove;
 		puntos[3] += fdf->height / 10 + fdf->verMove;
 	}
-	if (j < fdf->col - 1 && i < fdf->fil - 1)
-		if (fdf->map[i][j] > 0)
-			bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorP, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorT, 255));
-		else if (fdf->map[i][j] < 0)
-			bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorT, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorP, 255));
-		else
-			bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
+	if ((puntos[1] >= 0 && puntos[3] >= 0) && (puntos[1] < fdf->height && puntos[3] < fdf->height))
+		if (j < fdf->col - 1 && i < fdf->fil - 1)
+			if (fdf->map[i][j] > 0)
+				bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorP, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorT, 255));
+			else if (fdf->map[i][j] < 0)
+				bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorT, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorP, 255));
+			else
+				bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
 }
 
 void dale_duro3(t_fdf *fdf, int puntos[4], int i, int j)
@@ -221,13 +222,14 @@ void dale_duro3(t_fdf *fdf, int puntos[4], int i, int j)
 		puntos[2] += fdf->width / 2 + fdf->horMove;
 		puntos[3] += fdf->height / 10 + fdf->verMove;
 	}
-	if (j < fdf->col - 1 && i < fdf->fil - 1)
-		if (fdf->map[i][j] > 0)
-			bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorP, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorT, 255));
-		else if (fdf->map[i][j] < 0)
-			bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorT, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorP, 255));
-		else
-			bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
+	if ((puntos[1] >= 0 && puntos[3] >= 0) && (puntos[1] < fdf->height && puntos[3] < fdf->height))
+		if (j < fdf->col - 1 && i < fdf->fil - 1)
+			if (fdf->map[i][j] > 0)
+				bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorP, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorT, 255));
+			else if (fdf->map[i][j] < 0)
+				bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorT, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorP, 255));
+			else
+				bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
 }
 
 void dale_duro(void *param)
@@ -238,8 +240,8 @@ void dale_duro(void *param)
 	int j;
 
 	fdf = param;
-	mlx_get_mouse_pos(fdf->mlx, &fdf->xMouse, &fdf->yMouse);
-	ft_printf("x: %d, y: %d\n", fdf->xMouse, fdf->yMouse);
+	/*mlx_get_mouse_pos(fdf->mlx, &fdf->xMouse, &fdf->yMouse);
+	ft_printf("x: %d, y: %d\n", fdf->xMouse, fdf->yMouse);*/
 	i = 0;
 	while (i < fdf->fil - 1)
 	{
@@ -289,7 +291,7 @@ void	get_map(t_fdf *fdf)
 	}
 	free(line);
 	close(fd);
-	fdf->map[i] = NULL;
+	//fdf->map[i] = NULL;
 }
 
 int	get_fil(t_fdf *fdf)
@@ -348,7 +350,7 @@ void clear_content(t_fdf *fdf)
 	fdf->width = fmax(100, fabs((fdf->col + fdf->fil) * fdf->zoom * cos(fdf->ang)));
 	fdf->height = fmax(100, fabs((fdf->col + fdf->fil) * fdf->zoom * sin(fdf->ang) * 0.8));
 	mlx_delete_image(fdf->mlx, fdf->g_img);
-	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width * 2, fdf->height * 2);
+	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width, fdf->height);
 	mlx_image_to_window(fdf->mlx, fdf->g_img, 0, 0);
 }
 
@@ -365,6 +367,8 @@ void check_keypress(mlx_key_data_t key, void *param)
 			fdf->modo = 0;
 		else
 			fdf->modo++;
+		fdf->horMove = 0;
+		fdf->verMove = 0;
 		clear_content(fdf);
 	}
 	if (key.key == MLX_KEY_UP && (key.action == MLX_PRESS || key.action == MLX_REPEAT))
@@ -401,7 +405,7 @@ void my_scrollhook(double xdelta, double ydelta, void *param)
 	t_fdf	*fdf;
 
 	fdf = param;
-	if (ydelta > 0 && fdf->zoom < 30)
+	if (ydelta > 0 && fdf->width < 5000)
 	{
 		fdf->zoom++;
 		ft_printf("%d", fdf->zoom);
@@ -414,7 +418,33 @@ void my_scrollhook(double xdelta, double ydelta, void *param)
 		clear_content(fdf);
 	}
 }
+/*void cursor_hook(double cursor_x, double cursor_y, void *param)
+{
+	t_FdF *s;
+	t_vec2 distance;
 
+	s = param;
+	s->clicked = 0;
+	if (!mlx_is_mouse_down(s->mlx, MLX_MOUSE_BUTTON_LEFT) && !mlx_is_mouse_down(s->mlx, MLX_MOUSE_BUTTON_MIDDLE) && !mlx_is_mouse_down(s->mlx, MLX_MOUSE_BUTTON_RIGHT))
+		return;
+	distance.x = cursor_x - s->initial_cursor_pos.x;
+	distance.y = cursor_y - s->initial_cursor_pos.y;
+	if (mlx_is_mouse_down(s->mlx, MLX_MOUSE_BUTTON_MIDDLE))
+		s->height_scale -= (double)distance.y / 500;
+	if (mlx_is_mouse_down(s->mlx, MLX_MOUSE_BUTTON_RIGHT))
+		set_rotation(distance, s);
+	if (mlx_is_mouse_down(s->mlx, MLX_MOUSE_BUTTON_LEFT))
+	{
+		if (!s->orthographic)
+			distance = (t_vec2){distance.x * 3.3333, distance.y * 3.3333};
+		s->mesh_pos.x += distance.x;
+		s->mesh_pos.y += distance.y;
+	}
+	if (CURSOR_SETTABLE)
+		mlx_set_mouse_pos(s->mlx, s->initial_cursor_pos.x, s->initial_cursor_pos.y);
+	else
+		s->initial_cursor_pos = (t_ivec2){cursor_x, cursor_y};
+}*/
 void ratoncito(int x, int y, void *param)
 {
 	t_fdf *fdf;
@@ -422,7 +452,8 @@ void ratoncito(int x, int y, void *param)
 	int	*b;
 
 	fdf = param;
-	mlx_get_mouse_pos(fdf->mlx, &a, &b);
+	// mlx_set_mouse_pos(fdf->mlx, fdf->initial_cursor_pos.x, fdf->initial_cursor_pos.y);
+	mlx_get_mouse_pos(fdf->mlx, a, b);
 	ft_printf("x: %d, y: %d\n", a, b);
 }
 
@@ -444,7 +475,7 @@ int	main(int argc, char **argv)
 	fdf->colorS = 2;
 	fdf->width = fmax(100, fabs((fdf->col + fdf->fil) * fdf->zoom * cos(fdf->ang)));
 	fdf->height = fmax(100, fabs((fdf->col + fdf->fil) * fdf->zoom * sin(fdf->ang) * 0.8));
-	fdf->mlx = mlx_init(fdf->width + 1, fdf->height + 1, "Fdf by igomez-s", true);
+	fdf->mlx = mlx_init(fdf->width, fdf->height, "Fdf by igomez-s", true);
 	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width, fdf->height);
 	mlx_key_hook(fdf->mlx, &check_keypress, (void *)fdf);
 	mlx_image_to_window(fdf->mlx, fdf->g_img, 0, 0);

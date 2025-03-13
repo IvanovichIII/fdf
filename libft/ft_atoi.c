@@ -6,7 +6,7 @@
 /*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 20:54:04 by ivan              #+#    #+#             */
-/*   Updated: 2025/03/03 16:52:35 by ivan             ###   ########.fr       */
+/*   Updated: 2025/03/13 12:24:30 by ivan             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ int	ft_isspace(int c)
 	return ((c >= 9 && c <= 13) || c == 32);
 }
 
-long	ft_atoi(const char *str)
+int	ft_atoi(const char *str)
 {
 	int		sign;
 	long	ret;

@@ -6,7 +6,7 @@
 /*   By: ivan <ivan@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/02 23:44:21 by igomez-s          #+#    #+#             */
-/*   Updated: 2025/03/12 11:54:00 by ivan             ###   ########.fr       */
+/*   Updated: 2025/03/13 12:49:09 by ivan             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,8 +155,8 @@ void dale_duro2(t_fdf *fdf, int puntos[4], int i, int j)
 	{
 		puntos[0] = (j * fdf->zoom) + (fdf->map[i][j] * 0.5);
 		puntos[1] = (i * fdf->zoom) - (fdf->map[i][j] * 0.5);
-		puntos[2] = ((j + 1) * fdf->zoom) + (fdf->map[i + 1][j] * 0.5);
-		puntos[3] = (i * fdf->zoom) - (fdf->map[i + 1][j] * 0.5);
+		puntos[2] = ((j + 1) * fdf->zoom) + (fdf->map[i][j + 1] * 0.5);
+		puntos[3] = (i * fdf->zoom) - (fdf->map[i][j + 1] * 0.5);
 		puntos[0] += fdf->width / 10 + fdf->horMove;
 		puntos[1] += fdf->height / 10 + fdf->verMove;
 		puntos[2] += fdf->width / 10 + fdf->horMove;
@@ -164,23 +164,21 @@ void dale_duro2(t_fdf *fdf, int puntos[4], int i, int j)
 	}
 	else if (fdf->modo == 2)
 	{
-		puntos[0] = ((j - i) * fdf->zoom) / (1 + (fdf->map[i][j] * 0)) / 2;
-		puntos[1] = ((j + i) * fdf->zoom - fdf->map[i][j] * 2) / (1 + (fdf->map[i][j] * 0)) / 2;
-		puntos[2] = (((j + 1) - i) * fdf->zoom) / (1 + (fdf->map[i + 1][j] * 0)) / 2;
-		puntos[3] = (((j + 1) + i) * fdf->zoom - fdf->map[i + 1][j] * 2) / (1 + (fdf->map[i + 1][j] * 0)) / 2;
+		puntos[0] = ((j - i) * fdf->zoom) / (1 + (fdf->map[i][j] * 0.005)) / 2;
+		puntos[1] = ((j + i) * fdf->zoom - fdf->map[i][j] * 2) / (1 + (fdf->map[i][j] * 0.005)) / 2;
+		puntos[2] = (((j + 1) - i) * fdf->zoom) / (1 + (fdf->map[i][j + 1] * 0.005)) / 2;
+		puntos[3] = (((j + 1) + i) * fdf->zoom - fdf->map[i][j + 1] * 2) / (1 + (fdf->map[i][j + 1] * 0.005)) / 2;
 		puntos[0] += fdf->width / 2 + fdf->horMove;
 		puntos[1] += fdf->height / 10 + fdf->verMove;
 		puntos[2] += fdf->width / 2 + fdf->horMove;
 		puntos[3] += fdf->height / 10 + fdf->verMove;
 	}
-	if ((puntos[1] >= 0 && puntos[3] >= 0) && (puntos[1] < fdf->height && puntos[3] < fdf->height))
+	if ((puntos[1] > 0 && puntos[3] > 0) && (puntos[1] < fdf->height && puntos[3] < fdf->height))
 		if (j < fdf->col - 1 && i < fdf->fil - 1)
-			if (fdf->map[i][j] > 0)
+			if (fdf->map[i][j] >= 0)
 				bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorP, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorT, 255));
 			else if (fdf->map[i][j] < 0)
 				bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorT, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorP, 255));
-			else
-				bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
 }
 
 void dale_duro3(t_fdf *fdf, int puntos[4], int i, int j)
@@ -213,23 +211,21 @@ void dale_duro3(t_fdf *fdf, int puntos[4], int i, int j)
 	}
 	else if (fdf->modo == 2)
 	{
-		puntos[0] = ((j - i) * fdf->zoom) / (1 + (fdf->map[i][j] * 0)) / 2;
-		puntos[1] = ((j + i) * fdf->zoom - fdf->map[i][j] * 2) / (1 + (fdf->map[i][j] * 0)) / 2;
-		puntos[2] = (((j + 1) - i) * fdf->zoom) / (1 + (fdf->map[i + 1][j] * 0)) / 2;
-		puntos[3] = (((j + 1) + i) * fdf->zoom - fdf->map[i + 1][j] * 2) / (1 + (fdf->map[i + 1][j] * 0)) / 2;
+		puntos[0] = ((j - i) * fdf->zoom) / (1 + (fdf->map[i][j] * 0.005)) / 2;
+		puntos[1] = ((j + i) * fdf->zoom - fdf->map[i][j] * 2) / (1 + (fdf->map[i][j] * 0.005)) / 2;
+		puntos[2] = (((j + 1) - i) * fdf->zoom) / (1 + (fdf->map[i + 1][j] * 0.005)) / 2;
+		puntos[3] = (((j + 1) + i) * fdf->zoom - fdf->map[i + 1][j] * 2) / (1 + (fdf->map[i + 1][j] * 0.005)) / 2;
 		puntos[0] += fdf->width / 2 + fdf->horMove;
 		puntos[1] += fdf->height / 10 + fdf->verMove;
 		puntos[2] += fdf->width / 2 + fdf->horMove;
 		puntos[3] += fdf->height / 10 + fdf->verMove;
 	}
-	if ((puntos[1] >= 0 && puntos[3] >= 0) && (puntos[1] < fdf->height && puntos[3] < fdf->height))
+	if ((puntos[1] > 0 && puntos[3] > 0) && (puntos[1] < fdf->height && puntos[3] < fdf->height))
 		if (j < fdf->col - 1 && i < fdf->fil - 1)
-			if (fdf->map[i][j] > 0)
+			if (fdf->map[i][j] >= 0)
 				bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorP, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorT, 255));
 			else if (fdf->map[i][j] < 0)
 				bresenham(fdf, puntos, get_rgba(fdf->map[i][j] * fdf->colorT, fdf->map[i][j] * fdf->colorS, fdf->map[i][j] * fdf->colorP, 255));
-			else
-				bresenham(fdf, puntos, get_rgba(0, 0, 0, 255));
 }
 
 void dale_duro(void *param)
@@ -282,7 +278,7 @@ void	get_map(t_fdf *fdf)
 	i = 0;
 	while (i <= fdf->fil)
 		fdf->map[i++] = (int *)malloc(sizeof(int) * (fdf->col + 1));
-	fd = open(fdf->argv[1], O_RDONLY, 0);
+	fd = open(fdf->argv[1], O_RDONLY);
 	i = 0;
 	while (line = get_next_line(fd))
 	{
@@ -350,7 +346,7 @@ void clear_content(t_fdf *fdf)
 	fdf->width = fmax(100, fabs((fdf->col + fdf->fil) * fdf->zoom * cos(fdf->ang)));
 	fdf->height = fmax(100, fabs((fdf->col + fdf->fil) * fdf->zoom * sin(fdf->ang) * 0.8));
 	mlx_delete_image(fdf->mlx, fdf->g_img);
-	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width, fdf->height);
+	fdf->g_img = mlx_new_image(fdf->mlx, fdf->width + 1, fdf->height + 1);
 	mlx_image_to_window(fdf->mlx, fdf->g_img, 0, 0);
 }
 
@@ -468,6 +464,7 @@ int	main(int argc, char **argv)
 	fdf->col = get_col(fdf);
 	ft_printf("fila: %d, columna: %d\n", fdf->fil, fdf->col);
 	get_map(fdf);
+	char *line;
 	fdf->zoom = 1;
 	fdf->modo = 0;
 	fdf->ang = ANG;

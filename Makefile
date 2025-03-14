@@ -3,15 +3,11 @@ NAME = fdf
 # Compilador y banderas
 CC = cc
 #CFLAGS = -Wall -Wextra -Werror -Iinclude -ldl -lglfw -pthread -lm -g
-CFLAGS = -Iinclude -pthread -g
+CFLAGS = -Iinclude -pthread -g -I incl
 LFLAGS = -ldl -lglfw -lm
 RM = rm -rf
 MAKE = make --no-print-directory
 NO_PRINT = /dev/null
-
-# Archivos fuente y objeto
-SRCS =	prueba1.c
-OBJS = $(SRCS:.c=.o)
 
 # Librerías
 LIBFT_DIR = ./libft
@@ -22,6 +18,17 @@ PRINTF_DIR = ./printf
 PRINTF = $(PRINTF_DIR)/libftprintf.a
 MLX42_DIR = ./MLX42/build
 MLX42 = $(MLX42_DIR)/libmlx42.a
+
+# Archivos fuente y objeto
+SRCS =	src/fdf.c \
+		src/fdf_keys.c \
+		src/fdf_bresenham.c \
+		src/fdf_utils.c \
+		src/fdf_utils2.c \
+		src/fdf_write_down.c \
+		src/fdf_write_right.c
+OBJS = $(SRCS:.c=.o)
+
 
 # Colores para los mensajes
 GREEN = \033[0;32m
